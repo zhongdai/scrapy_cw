@@ -2,6 +2,7 @@
 import scrapy
 from scrapy.http import Request
 from os import path
+from healthcare.items import CWItem
 
 class CwSpider(scrapy.Spider):
     name = "cw"
@@ -19,26 +20,23 @@ class CwSpider(scrapy.Spider):
         category = path.basename(response.url)
         products = response.xpath('//div[@class="product-list-container"]//td')
         for prod in products:
-            sku = prod.xpath('input/@value').extract_first()
-            name = prod.xpath('a//div[@class="product-image"]/img/@alt').extract_first()
-            url = prod.xpath('a/@href').extract_first()
-            save = prod.xpath('a//span[@class="Save"]/text()').extract_first()
-            price = prod.xpath('a//span[@class="Price"]/text()').extract_first()
+            p = CWItem()
+            p['sku'] = prod.xpath('input/@value').extract_first()
+            p['name'] = prod.xpath('a//div[@class="product-image"]/img/@alt').extract_first()
+            p['url'] = prod.xpath('a/@href').extract_first()
+            p['saved'] = prod.xpath('a//span[@class="Save"]/text()').extract_first()
+            p['price'] = prod.xpath('a//span[@class="Price"]/text()').extract_first()
 
-            if save:
-                save = save.strip()
+            if p['saved']:
+                p['saved'] = p['saved'].strip()
 
-            if price:
-                price = price.strip()
+            if p['price']:
+                p['price'] = p['price'].strip()
 
-            yield {
-                'category': category,
-                'sku': sku,
-                'name': name,
-                'price': price,
-                'save': save,
-                'url': response.urljoin(url)
-            }
+            if p['url']:
+                p['url'] = response.urljoin(p['url'])
+
+            yield p
 
         page_urls = response.xpath('//div[@class="pager-results"][1]/a/@href').extract()
         for url in page_urls:

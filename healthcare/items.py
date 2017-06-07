@@ -8,7 +8,12 @@
 import scrapy
 
 
-class HealthcareItem(scrapy.Item):
+class CWItem(scrapy.Item):
     # define the fields for your item here like:
     # name = scrapy.Field()
-    pass
+    import_date = scrapy.Field()
+    sku = scrapy.Field()
+    name = scrapy.Field()
+    price = scrapy.Field()
+    saved = scrapy.Field()
+    url = scrapy.Field()
